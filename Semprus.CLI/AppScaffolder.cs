@@ -125,13 +125,13 @@ contract ItemRegistry {
     }
     
     function getItem(uint256 id) public view returns (Item memory) {
-        require(id > 0 && id <= itemCount, ""Item does not exist"");
+        require(id > 0 && id <= itemCount, 'Item does not exist');
         return items[id];
     }
     
     function updateItem(uint256 id, string memory name, string memory description) public {
-        require(id > 0 && id <= itemCount, ""Item does not exist"");
-        require(items[id].owner == msg.sender, ""Not the owner"");
+        require(id > 0 && id <= itemCount, 'Item does not exist');
+        require(items[id].owner == msg.sender, 'Not the owner');
         
         items[id].name = name;
         items[id].description = description;
@@ -139,8 +139,8 @@ contract ItemRegistry {
     }
     
     function deleteItem(uint256 id) public {
-        require(id > 0 && id <= itemCount, ""Item does not exist"");
-        require(items[id].owner == msg.sender, ""Not the owner"");
+        require(id > 0 && id <= itemCount, 'Item does not exist');
+        require(items[id].owner == msg.sender, 'Not the owner');
         
         delete items[id];
         emit ItemDeleted(id);
