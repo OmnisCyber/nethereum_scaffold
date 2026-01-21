@@ -15,7 +15,7 @@ public class AppScaffolder
         _appName = appName;
         _appPath = Path.Combine(Directory.GetCurrentDirectory(), appName);
 
-        AnsiConsole.MarkupLine($"[cyan]Creating Semprus blockchain application:[/] [yellow]{appName}[/]");
+        AnsiConsole.MarkupLine($"[cyan]Creating Nethersmith blockchain application:[/] [yellow]{appName}[/]");
         AnsiConsole.WriteLine();
 
         await AnsiConsole.Progress()
@@ -654,62 +654,65 @@ public class ItemRegistryService : IItemRegistryService
 
 <PageTitle>Items</PageTitle>
 
-<h1>Items</h1>
+<div class="page">
+    <div class="container">
+        <div class="header">
+            <button class="home-link" @onclick="@(() => Navigation.NavigateTo("/"))">
+                ← Back to Home
+            </button>
+            <h1>Blockchain Item Registry</h1>
+            <p class="subtitle">Manage your items on the Ethereum blockchain</p>
+        </div>
 
-<p>
-    <a href="/items/create" class="btn btn-primary">Create New Item</a>
-</p>
+        <div class="actions">
+            <button class="btn-primary" @onclick="@(() => Navigation.NavigateTo("/items/create"))">
+                <span class="btn-icon">+</span> Create New Item
+            </button>
+        </div>
 
-@if (loading)
-{
-    <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+        @if (loading)
+        {
+            <div class="spinner-border"></div>
+        }
+        else if (error != null)
+        {
+            <div class="alert alert-danger">
+                @error
+            </div>
+        }
+        else if (items.Count == 0)
+        {
+            <div class="alert alert-info">
+                No items found. Create your first item to get started!
+            </div>
+        }
+        else
+        {
+            <div class="items-grid">
+                @foreach (var item in items)
+                {
+                    <div class="item-card">
+                        <h3>@item.Name</h3>
+                        <p>@item.Description</p>
+                        <div class="item-meta">
+                            <div>ID: @item.Id</div>
+                            <div>Owner: @item.Owner.Substring(0, 10)...</div>
+                            <div>Created: @item.CreatedAtDateTime.ToString("g")</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-primary" @onclick="@(() => Navigation.NavigateTo($"/items/edit/{item.Id}"))">
+                                Edit
+                            </button>
+                            <button class="btn-danger" @onclick="() => DeleteItem(item.Id)">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
-}
-else if (error != null)
-{
-    <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Error</h4>
-        <p>@error</p>
-    </div>
-}
-else if (items.Count == 0)
-{
-    <div class="alert alert-info" role="alert">
-        No items found. Create your first item to get started!
-    </div>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Owner</th>
-                <th>Created At</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in items)
-            {
-                <tr>
-                    <td>@item.Id</td>
-                    <td>@item.Name</td>
-                    <td>@item.Description</td>
-                    <td><code>@item.Owner.Substring(0, 10)...</code></td>
-                    <td>@item.CreatedAtDateTime.ToString("g")</td>
-                    <td>
-                        <a href="/items/edit/@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteItem(item.Id)">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+</div>
 
 @code {
     private List<Item> items = new();
@@ -769,44 +772,56 @@ else
 
 <PageTitle>Create Item</PageTitle>
 
-<h1>Create New Item</h1>
-
-<EditForm Model="@model" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    @if (error != null)
-    {
-        <div class="alert alert-danger" role="alert">
-            @error
+<div class="page">
+    <div class="container">
+        <div class="header">
+            <button class="home-link" @onclick="@(() => Navigation.NavigateTo("/"))">
+                ← Back to Home
+            </button>
+            <h1>Create New Item</h1>
+            <p class="subtitle">Add a new record to the blockchain</p>
         </div>
-    }
 
-    <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <InputText id="name" @bind-Value="model.Name" class="form-control" />
-    </div>
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <InputTextArea id="description" @bind-Value="model.Description" class="form-control" rows="4" />
-    </div>
-
-    <div class="mb-3">
-        <button type="submit" class="btn btn-primary" disabled="@submitting">
-            @if (submitting)
+            @if (error != null)
             {
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <span> Creating...</span>
+                <div class="alert alert-danger">
+                    @error
+                </div>
             }
-            else
-            {
-                <span>Create</span>
-            }
-        </button>
-        <a href="/items" class="btn btn-secondary">Cancel</a>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" @bind-Value="model.Name" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <InputTextArea id="description" @bind-Value="model.Description" class="form-control" rows="4" />
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn-primary" disabled="@submitting">
+                    @if (submitting)
+                    {
+                        <span class="spinner-border"></span>
+                        <span> Creating...</span>
+                    }
+                    else
+                    {
+                        <span>Create Item</span>
+                    }
+                </button>
+                <button type="button" class="btn-secondary" @onclick="@(() => Navigation.NavigateTo("/items"))">
+                    Cancel
+                </button>
+            </div>
+        </EditForm>
     </div>
-</EditForm>
+</div>
 
 @code {
     private ItemFormModel model = new();
@@ -854,59 +869,69 @@ else
 
 <PageTitle>Edit Item</PageTitle>
 
-<h1>Edit Item #@Id</h1>
+<div class="page">
+    <div class="container">
+        <div class="header">
+            <button class="home-link" @onclick="@(() => Navigation.NavigateTo("/"))">
+                ← Back to Home
+            </button>
+            <h1>Edit Item #@Id</h1>
+            <p class="subtitle">Update blockchain record</p>
+        </div>
 
-@if (loading)
-{
-    <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-}
-else if (model == null)
-{
-    <div class="alert alert-danger" role="alert">
-        Item not found.
-    </div>
-}
-else
-{
-    <EditForm Model="@model" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        @if (error != null)
+        @if (loading)
         {
-            <div class="alert alert-danger" role="alert">
-                @error
+            <div class="spinner-border"></div>
+        }
+        else if (model == null)
+        {
+            <div class="alert alert-danger">
+                Item not found.
             </div>
         }
+        else
+        {
+            <EditForm Model="@model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <InputText id="name" @bind-Value="model.Name" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <InputTextArea id="description" @bind-Value="model.Description" class="form-control" rows="4" />
-        </div>
-
-        <div class="mb-3">
-            <button type="submit" class="btn btn-primary" disabled="@submitting">
-                @if (submitting)
+                @if (error != null)
                 {
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    <span> Updating...</span>
+                    <div class="alert alert-danger">
+                        @error
+                    </div>
                 }
-                else
-                {
-                    <span>Update</span>
-                }
-            </button>
-            <a href="/items" class="btn btn-secondary">Cancel</a>
-        </div>
-    </EditForm>
-}
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <InputText id="name" @bind-Value="model.Name" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <InputTextArea id="description" @bind-Value="model.Description" class="form-control" rows="4" />
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn-primary" disabled="@submitting">
+                        @if (submitting)
+                        {
+                            <span class="spinner-border"></span>
+                            <span> Updating...</span>
+                        }
+                        else
+                        {
+                            <span>Update Item</span>
+                        }
+                    </button>
+                    <button type="button" class="btn-secondary" @onclick="@(() => Navigation.NavigateTo("/items"))">
+                        Cancel
+                    </button>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
 
 @code {
     [Parameter]
@@ -1158,7 +1183,28 @@ app.Run();
 
 <div class="zen-hero">
     <div class="zen-container">
-        <h1 class="zen-title">SEMPRUS</h1>
+        <div class="logo-minimal">
+            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="sphere3D" cx="35%" cy="35%">
+                        <stop offset="0%" style="stop-color:#66C3E8;stop-opacity:1" />
+                        <stop offset="30%" style="stop-color:#1FA3D8;stop-opacity:1" />
+                        <stop offset="70%" style="stop-color:#007DB8;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#003E5C;stop-opacity:1" />
+                    </radialGradient>
+                    <radialGradient id="shine" cx="30%" cy="25%">
+                        <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.95" />
+                        <stop offset="20%" style="stop-color:#FFFFFF;stop-opacity:0.6" />
+                        <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:0.2" />
+                        <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0" />
+                    </radialGradient>
+                </defs>
+                
+                <circle cx="60" cy="60" r="48" fill="url(#sphere3D)"/>
+                <circle cx="60" cy="60" r="48" fill="url(#shine)"/>
+            </svg>
+        </div>
+        <h1 class="zen-title">NETHERSMITH</h1>
         <p class="zen-tagline">Secure back-end systems for blockchain applications. Cyber operations and OSINT-informed security. Secure .NET Core back-ends, hardened for real-world threats, fully integrated with Ethereum smart contract ecosystems.</p>
     </div>
 </div>
@@ -1166,17 +1212,17 @@ app.Run();
 <section class="zen-stats">
     <div class="zen-stats-container">
         <div class="stat-minimal">
-            <div class="stat-value">Censorship</div>
-            <div class="stat-value">Resistance</div>
+            <div class="stat-value">Blockchain</div>
+            <div class="stat-value">CRUD</div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-minimal">
-            <div class="stat-value">Cyber</div>
-            <div class="stat-value">Operations</div>
+            <div class="stat-value">Smart</div>
+            <div class="stat-value">Contracts</div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-minimal">
-            <div class="stat-value">OSINT</div>
+            <div class="stat-value">Ethereum</div>
         </div>
     </div>
 </section>
@@ -1185,8 +1231,8 @@ app.Run();
     <div class="zen-container-wide">
         <div class="feature-minimal">
             <span class="feature-number">CREATE</span>
-            <h3>Add Items</h3>
-            <p>Store new data immutably on the Ethereum blockchain with automatic owner tracking and transaction handling.</p>
+            <h3>Add New Items</h3>
+            <p>Create new records on the blockchain with instant transaction confirmation and immutable storage powered by Solidity smart contracts.</p>
             <div class="contact-trigger">
                 <button class="contact-link" @onclick="@(() => Navigation.NavigateTo("/items/create"))">
                     Create Item
@@ -1195,8 +1241,8 @@ app.Run();
         </div>
         <div class="feature-minimal">
             <span class="feature-number">READ</span>
-            <h3>View Items</h3>
-            <p>Query and retrieve all blockchain records with type-safe models and real-time synchronization.</p>
+            <h3>View All Items</h3>
+            <p>Browse your complete item registry with real-time data fetched directly from the Ethereum blockchain via Nethereum integration.</p>
             <div class="contact-trigger">
                 <button class="contact-link" @onclick="@(() => Navigation.NavigateTo("/items"))">
                     View All Items
@@ -1290,6 +1336,7 @@ app.Run();
     --space-lg: 2rem;
     --space-xl: 3rem;
     --space-2xl: 4rem;
+    --space-3xl: 6rem;
 }
 
 * {
@@ -1298,256 +1345,507 @@ app.Run();
     box-sizing: border-box;
 }
 
-html, body {
+html, body, #app {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--text-primary);
     line-height: 1.6;
     background: white;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    overflow-x: hidden;
 }
 
-.page {
+.zen-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+    text-align: center;
+}
+
+.zen-container-wide {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+    text-align: center;
+}
+
+.zen-hero {
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: white;
 }
 
-main {
-    flex: 1;
+.logo-minimal {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto var(--space-xl);
 }
 
-h1, h2, h3, h4, h5, h6 {
+.zen-title {
     font-family: 'Playfair Display', serif;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-h1 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    letter-spacing: 0.05em;
-    margin-bottom: var(--space-lg);
-}
-
-a {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 400;
+    letter-spacing: 0.4em;
     color: var(--primary-color);
-    text-decoration: none;
-    transition: color 0.3s ease;
+    margin: 0 auto var(--space-md);
+    border: none;
+    outline: none;
+    background: transparent;
+    box-shadow: none;
+    text-align: center;
+    width: 100%;
+    text-indent: 0.4em;
 }
 
-a:hover {
-    color: var(--primary-dark);
+.zen-tagline {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 var(--space-md);
 }
 
-/* Navbar Styles */
-.navbar {
-    background: var(--primary-color) !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.zen-features {
+    padding: var(--space-3xl) var(--space-md);
+    background: white;
+    text-align: center;
 }
 
-.navbar-brand {
+.zen-container-wide {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2xl);
+    max-width: 1200px;
+    margin: 0 auto;
+    justify-items: center;
+    align-items: start;
+}
+
+.feature-minimal {
+    text-align: center;
+    padding: var(--space-lg);
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+.feature-number {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.875rem;
+    color: var(--primary-color);
+    margin-bottom: var(--space-md);
+    letter-spacing: 0.2em;
+}
+
+.feature-minimal h3 {
     font-family: 'Playfair Display', serif;
     font-size: 1.5rem;
-    letter-spacing: 0.2em;
-    color: white !important;
     font-weight: 500;
+    margin: 0 auto var(--space-sm);
+    color: var(--text-primary);
+    text-align: center;
 }
 
-.nav-link {
-    color: rgba(255,255,255,0.9) !important;
+.feature-minimal p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.zen-stats {
+    padding: var(--space-3xl) 0;
+    background: var(--bg-light);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.zen-stats-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-xl);
+    flex-wrap: nowrap;
+}
+
+.zen-stats .zen-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-xl);
+    flex-wrap: nowrap;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center;
+}
+
+.stat-minimal {
+    text-align: center;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--primary-color);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.stat-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 60px;
+    background: #e0e0e0;
+}
+
+.zen-philosophy {
+    padding: var(--space-3xl) var(--space-md);
+    background: white;
+    text-align: center;
+}
+
+.philosophy-content {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.philosophy-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 400;
-    letter-spacing: 0.05em;
+    color: var(--text-primary);
+    margin-bottom: var(--space-lg);
+    line-height: 1.3;
+}
+
+.philosophy-text {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.9;
+    font-weight: 300;
+}
+
+.contact-trigger {
+    margin-top: var(--space-2xl);
+    text-align: center;
+}
+
+.contact-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    padding: var(--space-lg) var(--space-2xl);
+    margin-top: var(--space-xl);
+    letter-spacing: 0.08em;
+    font-weight: 400;
+    color: var(--primary-color);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.contact-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 1px;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.contact-link:hover::after {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .zen-container-wide {
+        grid-template-columns: 1fr;
+        gap: var(--space-xl);
+        text-align: center;
+    }
+    
+    .stat-divider {
+        display: none;
+    }
+    
+    .zen-stats .zen-container {
+        flex-direction: column;
+        gap: var(--space-lg);
+    }
+    
+    .stat-minimal {
+        width: 100%;
+    }
+}
+
+/* CRUD Pages */
+.page {
+    min-height: 100vh;
+    background: white;
+    padding: var(--space-2xl) var(--space-md);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.home-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-bottom: var(--space-lg);
+    padding: var(--space-sm) 0;
     transition: color 0.3s ease;
+    display: inline-block;
 }
 
-.nav-link:hover {
-    color: white !important;
+.home-link:hover {
+    color: var(--primary-color);
 }
 
-/* Button Styles */
+.header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--primary-color);
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-sm);
+}
+
+.subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+.actions {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
 .btn-primary {
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: white;
+    background: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: var(--space-md) var(--space-2xl);
+    cursor: pointer;
     letter-spacing: 0.05em;
     transition: all 0.3s ease;
+    border-radius: 0.375rem;
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-dark);
+    background: var(--primary-dark);
     border-color: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,125,184,0.3);
 }
 
 .btn-secondary {
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    background-color: var(--text-secondary);
-    border-color: var(--text-secondary);
-    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    background: transparent;
+    border: 1px solid var(--text-secondary);
+    padding: var(--space-md) var(--space-2xl);
+    cursor: pointer;
     letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+    border-radius: 0.375rem;
+    margin-left: var(--space-sm);
 }
 
-.btn-warning {
-    background-color: #f59e0b;
-    border-color: #f59e0b;
+.btn-secondary:hover {
+    background: var(--bg-light);
 }
 
 .btn-danger {
-    background-color: #dc2626;
-    border-color: #dc2626;
-}
-
-.btn-sm {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: white;
+    background: #dc2626;
+    border: 1px solid #dc2626;
     padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-}
-
-/* Table Styles */
-.table {
-    font-family: 'Inter', sans-serif;
-    margin-top: var(--space-lg);
-}
-
-.table thead {
-    background-color: var(--bg-light);
-}
-
-.table thead th {
-    font-weight: 500;
+    cursor: pointer;
     letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    border-bottom: 2px solid var(--primary-color);
-}
-
-.table td {
-    vertical-align: middle;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(0,125,184,0.03);
-}
-
-/* Form Styles */
-.form-label {
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.form-control {
-    font-family: 'Inter', sans-serif;
-    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
     border-radius: 0.375rem;
-    padding: 0.75rem;
-    transition: border-color 0.3s ease;
 }
 
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0,125,184,0.1);
+.btn-danger:hover {
+    background: #991b1b;
 }
 
-/* Alert Styles */
-.alert {
-    font-family: 'Inter', sans-serif;
-    border-radius: 0.375rem;
-    padding: 1rem;
-    margin-bottom: var(--space-lg);
-}
-
-.alert-danger {
-    background-color: #fef2f2;
-    border-color: #fecaca;
-    color: #991b1b;
-}
-
-.alert-info {
-    background-color: #eff6ff;
-    border-color: #bfdbfe;
-    color: #1e40af;
-}
-
-/* Card/Container Styles */
-.container {
-    max-width: 1200px;
-}
-
-/* Hero Section */
-.jumbotron {
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
-    color: white;
-    padding: var(--space-2xl);
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 30px rgba(0,125,184,0.2);
-}
-
-.jumbotron h1 {
-    color: white;
-    font-family: 'Playfair Display', serif;
-}
-
-.jumbotron p {
-    color: rgba(255,255,255,0.95);
-}
-
-.jumbotron .btn-primary {
-    background-color: white;
-    color: var(--primary-color);
-    border-color: white;
-}
-
-.jumbotron .btn-primary:hover {
-    background-color: var(--bg-light);
-    border-color: var(--bg-light);
-    color: var(--primary-dark);
-}
-
-/* Feature Grid */
-.row {
-    margin-top: var(--space-xl);
-}
-
-.row h3 {
+.btn-icon {
     font-size: 1.25rem;
+    margin-right: 0.25rem;
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-2xl);
+}
+
+.item-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+    padding: var(--space-lg);
+    transition: all 0.3s ease;
+}
+
+.item-card:hover {
+    box-shadow: 0 4px 12px rgba(0,125,184,0.1);
+    border-color: var(--primary-light);
+}
+
+.item-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: var(--text-primary);
     margin-bottom: var(--space-sm);
 }
 
-.row p {
+.item-card p {
     color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: var(--space-md);
 }
 
-/* Validation */
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
-}
-
-.invalid {
-    outline: 1px solid #dc2626;
-}
-
-.validation-message {
-    color: #dc2626;
+.item-meta {
     font-size: 0.875rem;
-    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
 }
 
-/* Loading Spinner */
+.item-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.alert {
+    padding: var(--space-md);
+    border-radius: 0.375rem;
+    margin-bottom: var(--space-lg);
+    font-size: 0.95rem;
+}
+
+.alert-info {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.alert-danger {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
 .spinner-border {
     display: inline-block;
     width: 2rem;
     height: 2rem;
-    vertical-align: text-bottom;
     border: 0.25em solid var(--primary-light);
     border-right-color: transparent;
     border-radius: 50%;
-    animation: spinner-border 0.75s linear infinite;
+    animation: spinner 0.75s linear infinite;
 }
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+
+.form-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    padding: var(--space-md);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.375rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0,125,184,0.1);
+}
+
+.mb-3 {
+    margin-bottom: var(--space-md);
+}
+
+.validation-errors {
+    color: #dc2626;
+    font-size: 0.875rem;
+}
+
 
 @keyframes spinner-border {
     to { transform: rotate(360deg); }
