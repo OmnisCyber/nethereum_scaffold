@@ -1204,8 +1204,8 @@ app.Run();
                 <circle cx="60" cy="60" r="48" fill="url(#shine)"/>
             </svg>
         </div>
-        <h1 class="zen-title">NETHERSMITH</h1>
-        <p class="zen-tagline">Secure back-end systems for blockchain applications. Cyber operations and OSINT-informed security. Secure .NET Core back-ends, hardened for real-world threats, fully integrated with Ethereum smart contract ecosystems.</p>
+        <h1 class="zen-title" style="text-align: center;">NETHERSMITH</h1>
+        <p class="zen-tagline">Rails-like scaffolding for .NET blockchain applications. Build production-ready Blazor CRUD apps backed by Ethereum smart contracts—no external dependencies required. Scaffold, deploy, and run entirely in .NET. <a href="https://github.com/OmnisCyber/nethereum_scaffold" target="_blank" style="color: var(--primary-color); text-decoration: underline;">View on GitHub</a></p>
     </div>
 </div>
 
