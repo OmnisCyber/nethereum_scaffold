@@ -1405,14 +1405,14 @@ body {
     letter-spacing: 0.4em;
     color: var(--primary-color);
     margin: 0 auto var(--space-md);
-    padding-left: 0.4em;
-    margin-right: -0.4em;
     border: none;
     outline: none;
     background: transparent;
     box-shadow: none;
-    text-align: center;
-    width: 100%;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
 }
 
 .zen-tagline {
