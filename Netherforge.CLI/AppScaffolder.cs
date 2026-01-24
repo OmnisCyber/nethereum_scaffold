@@ -1405,6 +1405,7 @@ body {
     letter-spacing: 0.4em;
     color: var(--primary-color);
     margin: 0 auto var(--space-md);
+    margin-right: -0.4em;
     border: none;
     outline: none;
     background: transparent;
