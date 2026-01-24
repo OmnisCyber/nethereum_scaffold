@@ -1411,7 +1411,6 @@ body {
     box-shadow: none;
     text-align: center;
     width: 100%;
-    text-indent: 0.4em;
 }
 
 .zen-tagline {
