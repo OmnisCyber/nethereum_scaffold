@@ -1,4 +1,4 @@
-# Semprus Quick Start Guide
+# Netherforge Quick Start Guide
 
 Get your blockchain application running in under 5 minutes!
 
@@ -8,15 +8,15 @@ Get your blockchain application running in under 5 minutes!
 - Basic understanding of Ethereum/blockchain concepts
 - An Ethereum node (we'll use Ganache for this guide)
 
-## Step 1: Install Semprus CLI
+## Step 1: Install Netherforge CLI
 
 ```bash
-dotnet tool install -g Semprus.CLI
+dotnet tool install -g Netherforge.CLI
 ```
 
 Verify installation:
 ```bash
-semprus --version
+netherforge --version
 ```
 
 ## Step 2: Set Up Local Blockchain
@@ -57,7 +57,7 @@ npx hardhat node
 ## Step 3: Generate Your Application
 
 ```bash
-semprus scaffold MyFirstBlockchainApp
+netherforge scaffold MyFirstBlockchainApp
 cd MyFirstBlockchainApp
 ```
 

@@ -54,7 +54,7 @@ Demo*/
 Example*/
 
 # Keep the CLI tool itself
-!Semprus.CLI/
+!Netherforge.CLI/
 
 # Node modules (if using Hardhat/Truffle for contract deployment)
 node_modules/

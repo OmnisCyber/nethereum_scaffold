@@ -1,6 +1,6 @@
-# Semprus Examples
+# Netherforge Examples
 
-Advanced examples and use cases for Semprus blockchain applications.
+Advanced examples and use cases for Netherforge blockchain applications.
 
 ## Table of Contents
 

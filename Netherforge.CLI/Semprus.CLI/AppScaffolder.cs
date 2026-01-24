@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Text;
 using Spectre.Console;
 
-namespace Semprus.CLI;
+namespace Netherforge.CLI;
 
 public class AppScaffolder
 {

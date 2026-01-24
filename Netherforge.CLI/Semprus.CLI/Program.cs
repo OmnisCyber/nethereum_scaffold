@@ -1,10 +1,10 @@
 using Spectre.Console;
-using Semprus.CLI;
+using Netherforge.CLI;
 
 if (args.Length == 0)
 {
     AnsiConsole.MarkupLine("[red]Error:[/] No command specified.");
-    AnsiConsole.MarkupLine("Usage: semprus scaffold <appname>");
+    AnsiConsole.MarkupLine("Usage: netherforge scaffold <appname>");
     return 1;
 }
 
@@ -15,7 +15,7 @@ if (command == "scaffold")
     if (args.Length < 2)
     {
         AnsiConsole.MarkupLine("[red]Error:[/] Application name not specified.");
-        AnsiConsole.MarkupLine("Usage: semprus scaffold <appname>");
+        AnsiConsole.MarkupLine("Usage: netherforge scaffold <appname>");
         return 1;
     }
 
@@ -36,6 +36,6 @@ if (command == "scaffold")
 else
 {
     AnsiConsole.MarkupLine($"[red]Error:[/] Unknown command '{command}'.");
-    AnsiConsole.MarkupLine("Usage: semprus scaffold <appname>");
+    AnsiConsole.MarkupLine("Usage: netherforge scaffold <appname>");
     return 1;
 }

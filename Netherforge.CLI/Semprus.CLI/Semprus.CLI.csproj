@@ -8,13 +8,13 @@
     
     <!-- Global Tool Configuration -->
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>semprus</ToolCommandName>
+    <ToolCommandName>netherforge</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     
     <!-- Package Metadata -->
-    <PackageId>Semprus.CLI</PackageId>
+    <PackageId>Netherforge.CLI</PackageId>
     <Version>1.0.0</Version>
-    <Authors>Semprus</Authors>
+    <Authors>Netherforge</Authors>
     <Description>Rails-like scaffolding tool for .NET/Blazor blockchain applications using Nethereum</Description>
     <PackageTags>blockchain;ethereum;nethereum;blazor;scaffolding;cli</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

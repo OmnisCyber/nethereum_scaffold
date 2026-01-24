@@ -1,8 +1,8 @@
-# Semprus - Ethereum Blockchain Scaffolding for .NET
+# Netherforge - Ethereum Blockchain Scaffolding for .NET
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Semprus** is a Rails-like scaffolding tool that generates production-ready .NET/Blazor CRUD applications backed by Ethereum smart contracts via [Nethereum](https://nethereum.com/). With a single command, create full-stack blockchain applications without external dependencies like Truffle, Ganache, Infura, or Web3.js.
+**Netherforge** is a Rails-like scaffolding tool that generates production-ready .NET/Blazor CRUD applications backed by Ethereum smart contracts via [Nethereum](https://nethereum.com/). With a single command, create full-stack blockchain applications without external dependencies like Truffle, Ganache, Infura, or Web3.js.
 
 ## Features
 
@@ -18,13 +18,13 @@
 ### Installation
 
 ```bash
-dotnet tool install -g Semprus.CLI
+dotnet tool install -g Netherforge.CLI
 ```
 
 ### Create Your First App
 
 ```bash
-semprus scaffold MyBlockchainApp
+netherforge scaffold MyBlockchainApp
 cd MyBlockchainApp
 ```
 
@@ -271,7 +271,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For issues and questions:
-- GitHub Issues: [Report a bug](https://github.com/yourusername/semprus/issues)
+- GitHub Issues: [Report a bug](https://github.com/yourusername/netherforge/issues)
 - Documentation: See [QUICKSTART.md](QUICKSTART.md) and [EXAMPLES.md](EXAMPLES.md)
 
 ---
