@@ -65,7 +65,7 @@ public class AppScaffolder
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -1048,10 +1048,13 @@ builder.Services.AddServerSideBlazor();
 // Use mock service for demo mode (default), real blockchain when configured
 var blockchainConfig = builder.Configuration.GetSection("Blockchain");
 var nodeUrl = blockchainConfig["NodeUrl"];
-var isConfigured = !string.IsNullOrEmpty(nodeUrl) && 
-                   nodeUrl != "http://localhost:8545" &&
-                   !string.IsNullOrEmpty(blockchainConfig["ContractAddress"]) &&
-                   blockchainConfig["ContractAddress"] != "YOUR_DEPLOYED_CONTRACT_ADDRESS_HERE";
+var contractAddress = blockchainConfig["ContractAddress"];
+var privateKey = blockchainConfig["PrivateKey"];
+var isConfigured = !string.IsNullOrEmpty(nodeUrl) &&
+                   !string.IsNullOrEmpty(contractAddress) &&
+                   contractAddress != "0x0000000000000000000000000000000000000000" &&
+                   !string.IsNullOrEmpty(privateKey) &&
+                   privateKey != "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 if (isConfigured)
 {
