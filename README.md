@@ -2,97 +2,46 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Netherforge** is a Rails-like scaffolding tool that generates production-ready .NET/Blazor CRUD applications backed by Ethereum smart contracts via [Nethereum](https://nethereum.com/). With a single command, create full-stack blockchain applications without external dependencies like Truffle, Ganache, Infura, or Web3.js.
+**Netherforge** is a scaffolding CLI that generates a Blazor Server CRUD application backed by a single Ethereum smart contract (`ItemRegistry`), using [Nethereum](https://nethereum.com/) as the client library. It's written entirely in C#/.NET — no Node.js, Truffle, or Web3.js required to *generate or run* the app.
 
-## Features
+One thing it does **not** do: compile or deploy the Solidity contract for you. Nethereum is an RPC client, not a blockchain node or a Solidity compiler — deploying `ItemRegistry.sol` still requires a separate tool (Remix, Hardhat, Foundry, etc.) and a running Ethereum-compatible node (Ganache, Hardhat node, Anvil, geth, or a testnet/mainnet RPC endpoint) to deploy against. There's no way around that requirement for any tool — it's inherent to talking to a blockchain, not a Netherforge limitation.
 
-✨ **Single Command Setup** - Generate complete blockchain apps in ~10 seconds  
-🔗 **Smart Contract Integration** - Solidity contracts with full CRUD operations  
-⚡ **Blazor Server UI** - Modern, responsive UI with Bootstrap  
-🛠️ **No External Dependencies** - Pure .NET solution using Nethereum  
-📦 **Production Ready** - Complete with services, models, and configuration  
-🎯 **Type Safe** - Full C# type safety across the stack
-
-## Quick Start
-
-### Installation
+## What it generates
 
 ```bash
 dotnet tool install -g Netherforge.CLI
-```
-
-### Create Your First App
-
-```bash
 netherforge scaffold MyBlockchainApp
 cd MyBlockchainApp
-```
-
-### Configure Blockchain Settings
-
-Edit `appsettings.json`:
-
-```json
-{
-  "Blockchain": {
-    "NodeUrl": "http://localhost:8545",
-    "ContractAddress": "0xYourContractAddress",
-    "PrivateKey": "0xYourPrivateKey"
-  }
-}
-```
-
-### Deploy Smart Contract
-
-1. Compile the Solidity contract in `Contracts/ItemRegistry.sol`
-2. Deploy to your Ethereum node (local or testnet)
-3. Update `ContractAddress` in `appsettings.json`
-
-### Run the Application
-
-```bash
 dotnet run
 ```
-
-Navigate to `https://localhost:5001` to see your blockchain app in action!
-
-## Architecture
-
-### Generated Application Stack
 
 ```
 MyBlockchainApp/
 ├── Contracts/
-│   ├── ItemRegistry.sol      # Solidity smart contract
+│   ├── ItemRegistry.sol       # Solidity smart contract
 │   └── ItemRegistry.abi       # Contract ABI
 ├── Models/
-│   ├── Item.cs                # Domain model
-│   └── BlockchainConfig.cs    # Configuration model
+│   ├── Item.cs
+│   └── BlockchainConfig.cs
 ├── Services/
-│   └── ItemRegistryService.cs # Nethereum service layer
+│   ├── IItemRegistryService.cs
+│   ├── ItemRegistryService.cs      # Real Nethereum-backed implementation
+│   └── MockItemRegistryService.cs  # In-memory fallback (see Demo mode below)
 ├── Pages/
-│   ├── Index.razor            # Home page
-│   └── Items/
-│       ├── Index.razor        # List items
-│       ├── Create.razor       # Create item
-│       └── Edit.razor         # Edit item
-├── Shared/
-│   └── MainLayout.razor       # App layout
-├── wwwroot/
-│   └── css/
-│       └── site.css           # Styles
-└── appsettings.json           # Configuration
+│   ├── Index.razor
+│   └── Items/ (Index, Create, Edit)
+├── Shared/MainLayout.razor
+├── wwwroot/css/site.css
+└── appsettings.json
 ```
 
-### Smart Contract Layer
+The app listens on **`http://localhost:5050`** (HTTP only — Kestrel is hardcoded, not HTTPS/5001).
 
-The generated `ItemRegistry` smart contract provides:
+## Demo mode
 
-- **Create**: Add new items to the blockchain
-- **Read**: Query individual items or all items
-- **Update**: Modify existing items (owner only)
-- **Delete**: Soft-delete items (owner only)
-- **Events**: Blockchain events for all operations
+Out of the box, `appsettings.json` ships with placeholder zero-address values. When those are left unconfigured, the app automatically falls back to `MockItemRegistryService` — an in-memory list, no blockchain involved — so `dotnet run` works immediately with no setup. This is what you'll see the first time you run a freshly scaffolded app.
+
+## The smart contract
 
 ```solidity
 contract ItemRegistry {
@@ -104,7 +53,7 @@ contract ItemRegistry {
         uint256 createdAt;
         bool isDeleted;
     }
-    
+
     function createItem(string memory name, string memory description) public returns (uint256)
     function getItem(uint256 id) public view returns (Item memory)
     function updateItem(uint256 id, string memory name, string memory description) public
@@ -113,167 +62,59 @@ contract ItemRegistry {
 }
 ```
 
-### Service Layer
+`updateItem`/`deleteItem` are owner-gated; deletes are soft (an `isDeleted` flag, not a storage wipe).
 
-The `ItemRegistryService` provides a clean C# API over the smart contract:
+## Connecting to a real chain
 
-```csharp
-public class ItemRegistryService
-{
-    public async Task<ulong> CreateItemAsync(string name, string description)
-    public async Task<Item?> GetItemAsync(ulong id)
-    public async Task<List<Item>> GetAllItemsAsync()
-    public async Task UpdateItemAsync(ulong id, string name, string description)
-    public async Task DeleteItemAsync(ulong id)
-}
-```
-
-### UI Layer
-
-Blazor Server pages with full CRUD functionality:
-
-- **Items/Index.razor** - List all items with pagination
-- **Items/Create.razor** - Form to create new items
-- **Items/Edit.razor** - Form to edit existing items
-- Real-time transaction status updates
-- Error handling and loading states
-
-## Configuration
-
-### Blockchain Settings
-
-Configure your Ethereum connection in `appsettings.json`:
-
-```json
-{
-  "Blockchain": {
-    "NodeUrl": "http://localhost:8545",           // Your Ethereum node URL
-    "ContractAddress": "0x...",                    // Deployed contract address
-    "PrivateKey": "0x..."                          // Account private key
-  }
-}
-```
-
-### Supported Networks
-
-- **Local Development**: Ganache, Hardhat Node
-- **Testnets**: Sepolia, Goerli, Mumbai
-- **Mainnet**: Ethereum, Polygon
-
-## Development Workflow
-
-### Local Testing with Ganache
-
-1. Install and start Ganache:
-   ```bash
-   npm install -g ganache
-   ganache
+1. Start a local node — e.g. `npx hardhat node` or `ganache` (either works; the CLI doesn't depend on or bundle either).
+2. Compile and deploy `Contracts/ItemRegistry.sol` yourself (Remix IDE is the fastest path — paste the file in, compile, deploy against your local node's RPC URL).
+3. Fill in `appsettings.json`:
+   ```json
+   {
+     "Blockchain": {
+       "NodeUrl": "http://localhost:8545",
+       "ContractAddress": "0xYourDeployedContractAddress",
+       "PrivateKey": "0xYourAccountPrivateKey"
+     }
+   }
    ```
+4. `dotnet run` — the app detects real values and switches from `MockItemRegistryService` to `ItemRegistryService`.
 
-2. Deploy contract:
-   ```bash
-   # Use Remix IDE or Hardhat to deploy ItemRegistry.sol
-   ```
+The same flow works against a testnet (Sepolia, etc.) by pointing `NodeUrl` at an RPC provider and using a funded testnet key — never a mainnet key with real funds.
 
-3. Update configuration with contract address and private key
+## Customizing
 
-4. Run application:
-   ```bash
-   dotnet run
-   ```
+- **Contract**: edit `Contracts/ItemRegistry.sol`, redeploy, update `ContractAddress`.
+- **Service**: `Services/ItemRegistryService.cs` — this is hand-editable, generated once and not touched again by the CLI.
+- **UI**: `Pages/Items/*.razor`.
 
-### Testing with Hardhat
-
-1. Initialize Hardhat project:
-   ```bash
-   npx hardhat init
-   ```
-
-2. Copy `Contracts/ItemRegistry.sol` to Hardhat project
-
-3. Deploy and get contract address
-
-4. Update `appsettings.json`
-
-## Use Cases
-
-- **Asset Management**: Track physical or digital assets on-chain
-- **Supply Chain**: Immutable record of product lifecycle
-- **Voting Systems**: Transparent, tamper-proof voting
-- **NFT Platforms**: CRUD operations for NFT metadata
-- **Decentralized Databases**: Blockchain-backed data storage
-
-## Customization
-
-### Extending the Smart Contract
-
-Modify `Contracts/ItemRegistry.sol` to add custom fields:
-
-```solidity
-struct Item {
-    uint256 id;
-    string name;
-    string description;
-    uint256 price;        // Add custom field
-    string category;      // Add custom field
-    address owner;
-    uint256 createdAt;
-    bool isDeleted;
-}
-```
-
-### Extending the Service Layer
-
-Update `Services/ItemRegistryService.cs` to match your contract changes.
-
-### Customizing UI
-
-Modify Razor pages in `Pages/Items/` to match your design requirements.
+Note there's currently one entity (`Item`) baked into the template — this isn't a general "scaffold any model" generator yet, it's a fixed CRUD example to build on top of.
 
 ## Requirements
 
-- .NET 8.0 SDK or later
-- Ethereum node (local or remote)
-- Deployed smart contract
+- .NET 8.0 SDK
+- An Ethereum-compatible node, only if/when you want real deployments (not required to run the demo)
 
 ## Troubleshooting
 
-### Connection Issues
-
-**Problem**: Cannot connect to Ethereum node  
-**Solution**: Verify `NodeUrl` in `appsettings.json` and ensure node is running
-
-### Transaction Failures
-
-**Problem**: Transactions fail or timeout  
-**Solution**: Check gas limits in `ItemRegistryService.cs` and account balance
-
-### Contract Not Found
-
-**Problem**: Contract methods fail  
-**Solution**: Verify `ContractAddress` is correct and contract is deployed
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+| Problem | Cause |
+|---|---|
+| Browser can't connect | Check you're using `http://localhost:5050`, and that `dotnet run` is still running in a terminal |
+| App stuck in DEMO mode after configuring | Double-check `ContractAddress`/`PrivateKey` in `appsettings.json` aren't still the zero-filled placeholders |
+| Transaction fails/times out | Check account balance and gas limit (hardcoded at 3,000,000 in `ItemRegistryService.cs`) |
+| `getItem`/contract calls fail | Verify `ContractAddress` is correct for the network `NodeUrl` points at |
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT — see the LICENSE file for details.
 
 ## Resources
 
 - [Nethereum Documentation](https://docs.nethereum.com/)
 - [Blazor Documentation](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
 - [Solidity Documentation](https://docs.soliditylang.org/)
-- [Ethereum Development](https://ethereum.org/developers)
 
 ## Support
 
-For issues and questions:
-- GitHub Issues: [Report a bug](https://github.com/yourusername/netherforge/issues)
-- Documentation: See [QUICKSTART.md](QUICKSTART.md) and [EXAMPLES.md](EXAMPLES.md)
-
----
-
-**Built with ❤️ using .NET, Blazor, and Nethereum**
+- GitHub Issues: [OmnisCyber/nethereum_scaffold](https://github.com/OmnisCyber/nethereum_scaffold/issues)
+- See also [QUICKSTART.md](QUICKSTART.md) and [EXAMPLES.md](EXAMPLES.md)
